@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+      function convertiTextToHtml() {
+        $("#divResult").empty(); //riplisco la textArea finale
+        var testoInserito = $("textArea").val(); //testo inserito nella textArea
+
+        if (testoInserito == "" || testoInserito == undefined) {
+          alert("Non è stato inserito nulla nel campo di testo!");
+        } else {
+          var branches = $("#textArea").val().split("|"); //separo ogni branch
+
+          //ciclo i branch recuperati
+          $.each(branches, function (indexBranches, valueBranches) {
+            var tableTemplate = $("#divTable table").clone(true); //creo una copia della tabella template
+
+            
+            var branch = valueBranches.replaceAll("\n", "").replaceAll("\t", "").replaceAll("•", "").replaceAll("–", "-"); //recupero e formatto il singolo branch
+            var nomeBranch = branch.substring(0, branch.indexOf("#")); //recupero il solo nome del branch
+            var issuesArray = branch.split(nomeBranch).filter((item) => item)[0].split("#").filter((item) => item); //recupero la lista di issue
+
+            //inserisco il nome del branch
+            tableTemplate.find(".trDet td").last().text(nomeBranch);
+            var ul = tableTemplate.find("ul");
+            var arraylength = issuesArray.length;
+            ul.append("<!---------------------------------------------------- MODIFICHE ESEGUITE NEL " + (indexBranches+1) + "° BRANCH UNITO ------------------------------------------------------------------------>\n\t");
+
+            $.each(issuesArray, function (indexIssues, valueIssues) {
+              if (valueIssues != "" && valueIssues != undefined) {
+                ul.append("\t\t<li>#" + valueIssues + "</li>\n\t");
+                if (indexIssues === arraylength - 1) {
+                  ul.append(
+                    "<!------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>\n\t"
+                  );
+                }
+              }
+            });
+
+            $("#divResult").append(tableTemplate);
+            tableTemplate.find("#tempLi").remove(); //rimuovo il primo elemento che funge da esempio
+          });
+
+          $("#result").text($("#divResult").html());
+        }
+      }
+
+</script>
+    <title>Automazione ModaleInfo</title>
+  </head>
+  <body>
+    <div id="TextToHtml" class="tabcontent"> 
+      <fieldset style="width: 50%; min-height: 10em">
+        <textarea
+          id="textArea"
+          style="min-height: inherit; width: 100%; margin: auto; height: 100%"
+          placeholder="Inserisci qui usando questa formattazione:
+        [Nome Branch]
+        [#numeroIssue testoIssue]
+        ...
+        [#numeroIssue, numeroIssue testoIssue]
+        [Termina il blocco con un pipe '|']
+        "
+        ></textarea>
+        <button onclick="convertiTextToHtml()">Converti</button>
+      </fieldset>
+      <fieldset style="width: 50%; min-height: 10em">
+        <textarea 
+          contenteditable="true"
+          readonly
+          id="result"
+          style="min-height: inherit; width: 100%; margin: auto; height: 100%"
+        ></textarea>
+      </fieldset>
+
+      <div id="divTable" style="display: none">
+        <table class="">
+          <tr class="trDet">
+            <td>Merge con il branch:</td>
+            <td>INSERIRE NOME BRANCH</td>
+
+            <!-------------------------------------------------------------------------------------------------------------------------------------------------------------------------->
+          </tr>
+          <tr>
+            <td colspan="2">
+              <ul style="list-style-type: disc">
+                <li id="tempLi">INSERIRE ISSUE</li>
+              </ul>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div id="divResult" style="display: none"></div>
+    </div>
+  </body>
+</html>
